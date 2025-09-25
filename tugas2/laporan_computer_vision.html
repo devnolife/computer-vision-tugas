@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Tutorial Computer Vision - Transformasi Geometris</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .header .info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .info-item strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            margin-bottom: 30px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 25px 40px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .section-content {
+            padding: 40px;
+        }
+
+        .tutorial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .tutorial-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border-color: #3498db;
+        }
+
+        .tutorial-card h3 {
+            color: #2c3e50;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .image-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .image-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .image-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .image-caption {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .image-description {
+            color: #7f8c8d;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .concepts {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+            border-left: 5px solid #2196f3;
+        }
+
+        .concepts h4 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .concepts ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .concepts li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .concepts li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .algorithms {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .algorithm-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .algorithm-card:hover {
+            border-color: #3498db;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.1);
+        }
+
+        .algorithm-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .algorithm-desc {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-top: 30px;
+            color: #7f8c8d;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .footer p {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .footer .timestamp {
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .section-content {
+                padding: 25px;
+            }
+
+            .tutorial-grid,
+            .image-gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            height: 6px;
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            height: 100%;
+            width: 100%;
+            animation: progressLoad 2s ease-in-out;
+        }
+
+        @keyframes progressLoad {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #3498db;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin: 2px;
+        }
+
+        .badge.success { background: #2ecc71; }
+        .badge.info { background: #17a2b8; }
+        .badge.warning { background: #f39c12; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🖼️ Laporan Tutorial Computer Vision</h1>
+            <div class="subtitle">Transformasi Geometris dan Registrasi Citra</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="info">
+                <div class="info-item">
+                    <strong>Tutorial</strong>
+                    7.1 & 7.2 - Transformasi Geometris
+                </div>
+                <div class="info-item">
+                    <strong>Teknologi</strong>
+                    Python, OpenCV, NumPy, Matplotlib
+                </div>
+                <div class="info-item">
+                    <strong>Jumlah Hasil</strong>
+                    12 Gambar Demonstrasi
+                </div>
+                <div class="info-item">
+                    <strong>Status</strong>
+                    <span class="badge success">Selesai</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutorial 7.1 Section -->
+        <div class="section">
+            <div class="section-header">
+                📐 Tutorial 7.1: Cropping, Resizing, Flipping & Rotasi
+            </div>
+            <div class="section-content">
+                <p>Tutorial ini membahas operasi-operasi dasar transformasi geometris pada citra digital, termasuk cropping (pemotongan), resizing (pengubahan ukuran), flipping (pencerminan), dan rotasi.</p>
+                
+                <div class="concepts">
+                    <h4>🎯 Konsep Kunci yang Dipelajari:</h4>
+                    <ul>
+                        <li>Interpolasi Bilinear vs Bicubic untuk resizing</li>
+                        <li>Horizontal dan Vertical Flipping</li>
+                        <li>Rotasi dengan preservasi konten</li>
+                        <li>ROI (Region of Interest) selection</li>
+                        <li>Pixel manipulation dan coordinate transformation</li>
+                    </ul>
+                </div>
+
+                <div class="algorithms">
+                    <div class="algorithm-card">
+                        <div class="algorithm-title">Interpolasi Bilinear</div>
+                        <div class="algorithm-desc">Menggunakan 4 tetangga terdekat untuk menghitung nilai pixel baru dengan complexity O(1)</div>
+                    </div>
+                    <div class="algorithm-card">
+                        <div class="algorithm-title">Interpolasi Bicubic</div>
+                        <div class="algorithm-desc">Menggunakan 16 tetangga terdekat untuk hasil yang lebih smooth dengan complexity O(1)</div>
+                    </div>
+                    <div class="algorithm-card">
+                        <div class="algorithm-title">Matrix Rotation</div>
+                        <div class="algorithm-desc">Menggunakan rotation matrix 2x2 dengan cos(θ) dan sin(θ)</div>
+                    </div>
+                </div>
+
+                <div class="image-gallery">
+                    <div class="image-item">
+                        <img src="hasil/01_citra_asli.png" alt="Citra Asli">
+                        <div class="image-caption">Citra Asli</div>
+                        <div class="image-description">Citra dasar yang digunakan untuk semua demonstrasi transformasi</div>
+                    </div>
+                    
+                    <div class="image-item">
+                        <img src="hasil/02_citra_crop.png" alt="Hasil Cropping">
+                        <div class="image-caption">Hasil Cropping</div>
+                        <div class="image-description">Demonstrasi cropping dengan ROI selection pada bagian tertentu citra</div>
+                    </div>
+                    
+                    <div class="image-item">
+                        <img src="hasil/03_perbandingan_interpolasi.png" alt="Perbandingan Interpolasi">
+                        <div class="image-caption">Perbandingan Interpolasi</div>
+                        <div class="image-description">Perbedaan kualitas antara interpolasi bilinear dan bicubic saat resizing</div>
+                    </div>
+                    
+                    <div class="image-item">
+                        <img src="hasil/04_subsampling.png" alt="Subsampling Demo">
+                        <div class="image-caption">Demonstrasi Subsampling</div>
+                        <div class="image-description">Teknik pengurangan resolusi dengan memilih pixel secara selektif</div>
+                    </div>
+                    
+                    <div class="image-item">
+                        <img src="hasil/05_pengecilan_interpolasi.png" alt="Pengecilan dengan Interpolasi">
+                        <div class="image-caption">Pengecilan dengan Interpolasi</div>
+                        <div class="image-description">Resizing menggunakan berbagai metode interpolasi untuk kualitas optimal</div>
+                    </div>
+                    
+                    <div class="image-item">
+                        <img src="hasil/06_pembalikan.png" alt="Flipping Demo">
+                        <div class="image-caption">Demonstrasi Flipping</div>
+                        <div class="image-description">Horizontal flipping, vertical flipping, dan kombinasi keduanya</div>
+                    </div>
+                    
+                    <div class="image-item">
+                        <img src="hasil/07_rotasi.png" alt="Rotation Demo">
+                        <div class="image-caption">Demonstrasi Rotasi</div>
+                        <div class="image-description">Rotasi dengan berbagai sudut dan preservasi seluruh konten citra</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutorial 7.2 Section -->
+        <div class="section">
+            <div class="section-header">
+                🔄 Tutorial 7.2: Transformasi Spatial dan Registrasi Citra
+            </div>
+            <div class="section-content">
+                <p>Tutorial lanjutan yang membahas transformasi spatial kompleks menggunakan affine transformation matrix dan teknik registrasi citra untuk menyelaraskan multiple images.</p>
+                
+                <div class="concepts">
+                    <h4>🎯 Konsep Kunci yang Dipelajari:</h4>
+                    <ul>
+                        <li>Affine Transformation Matrix (3x3)</li>
+                        <li>Scaling, Translation, Rotation, dan Shearing</li>
+                        <li>Control Points dan Feature Matching</li>
+                        <li>Image Registration Pipeline</li>
+                        <li>Similarity Transform dan Rigid Transform</li>
+                        <li>Inverse Transformation dan Warping</li>
+                    </ul>
+                </div>
+
+                <div class="algorithms">
+                    <div class="algorithm-card">
+                        <div class="algorithm-title">Affine Transform</div>
+                        <div class="algorithm-desc">Transformasi linear yang mempertahankan garis paralel dan rasio jarak pada garis</div>
+                    </div>
+                    <div class="algorithm-card">
+                        <div class="algorithm-title">Control Points</div>
+                        <div class="algorithm-desc">Titik-titik referensi untuk menghitung parameter transformasi</div>
+                    </div>
+                    <div class="algorithm-card">
+                        <div class="algorithm-title">Image Registration</div>
+                        <div class="algorithm-desc">Proses menyelaraskan dua atau lebih citra ke coordinate system yang sama</div>
+                    </div>
+                    <div class="algorithm-card">
+                        <div class="algorithm-title">Similarity Transform</div>
+                        <div class="algorithm-desc">Subset dari affine transform: translation, rotation, dan uniform scaling</div>
+                    </div>
+                </div>
+
+                <div class="image-gallery">
+                    <div class="image-item">
+                        <img src="hasil/08_scaling_comparison.png" alt="Scaling Comparison">
+                        <div class="image-caption">Perbandingan Scaling</div>
+                        <div class="image-description">Perbedaan hasil antara affine scaling dan image resizing biasa</div>
+                    </div>
+                    
+                    <div class="image-item">
+                        <img src="hasil/09_rotation_comparison.png" alt="Rotation Comparison">
+                        <div class="image-caption">Perbandingan Rotasi</div>
+                        <div class="image-description">Rotasi menggunakan affine transformation vs OpenCV built-in rotation</div>
+                    </div>
+                    
+                    <div class="image-item">
+                        <img src="hasil/10_translation.png" alt="Translation Demo">
+                        <div class="image-caption">Demonstrasi Translation</div>
+                        <div class="image-description">Perpindahan citra dengan offset (dx=50, dy=100) dan background filling</div>
+                    </div>
+                    
+                    <div class="image-item">
+                        <img src="hasil/11_shearing.png" alt="Shearing Demo">
+                        <div class="image-caption">Demonstrasi Shearing</div>
+                        <div class="image-description">Transformasi shear yang mengubah bentuk tanpa mengubah area</div>
+                    </div>
+                    
+                    <div class="image-item">
+                        <img src="hasil/12_image_registration.png" alt="Image Registration">
+                        <div class="image-caption">Image Registration</div>
+                        <div class="image-description">Proses registrasi: citra referensi, tidak teregistrasi, hasil registrasi, dan overlay</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Summary -->
+        <div class="section">
+            <div class="section-header">
+                ⚙️ Ringkasan Teknis dan Implementasi
+            </div>
+            <div class="section-content">
+                <div class="tutorial-grid">
+                    <div class="tutorial-card">
+                        <h3>🔧 Library yang Digunakan</h3>
+                        <p><span class="badge info">OpenCV</span> untuk operasi citra dasar</p>
+                        <p><span class="badge info">NumPy</span> untuk manipulasi array dan matrix</p>
+                        <p><span class="badge info">Matplotlib</span> untuk visualisasi hasil</p>
+                        <p><span class="badge info">Scikit-image</span> untuk transformasi advanced</p>
+                        <p><span class="badge info">PIL</span> untuk format handling</p>
+                    </div>
+                    
+                    <div class="tutorial-card">
+                        <h3>📊 Hasil Analisis</h3>
+                        <p>✅ <strong>12 gambar</strong> hasil demonstrasi berhasil dihasilkan</p>
+                        <p>✅ <strong>5 teknik</strong> transformasi dasar diimplementasi</p>
+                        <p>✅ <strong>4 jenis</strong> affine transformation diterapkan</p>
+                        <p>✅ <strong>1 pipeline</strong> registrasi citra lengkap</p>
+                        <p>✅ Semua hasil dalam <strong>bahasa Indonesia</strong></p>
+                    </div>
+                    
+                    <div class="tutorial-card">
+                        <h3>🎓 Pembelajaran Kunci</h3>
+                        <p><span class="badge success">Interpolasi</span> Perbedaan bilinear vs bicubic</p>
+                        <p><span class="badge success">Matrix</span> Penggunaan transformation matrix</p>
+                        <p><span class="badge success">Registrasi</span> Alignment multiple images</p>
+                        <p><span class="badge success">ROI</span> Region of Interest selection</p>
+                        <p><span class="badge success">Warping</span> Geometric transformation</p>
+                    </div>
+                    
+                    <div class="tutorial-card">
+                        <h3>🚀 Aplikasi Praktis</h3>
+                        <p><span class="badge warning">Medical Imaging</span> Alignment scan results</p>
+                        <p><span class="badge warning">Computer Vision</span> Object tracking</p>
+                        <p><span class="badge warning">Photography</span> Image enhancement</p>
+                        <p><span class="badge warning">Robotics</span> Visual navigation</p>
+                        <p><span class="badge warning">AR/VR</span> Scene registration</p>
+                    </div>
+                </div>
+                
+                <div class="concepts">
+                    <h4>📈 Kompleksitas Algoritma:</h4>
+                    <ul>
+                        <li><strong>Cropping:</strong> O(w×h) dimana w dan h adalah ukuran ROI</li>
+                        <li><strong>Resizing:</strong> O(W×H) dimana W dan H adalah ukuran output</li>
+                        <li><strong>Rotation:</strong> O(W×H) untuk setiap pixel yang ditransformasi</li>
+                        <li><strong>Affine Transform:</strong> O(W×H) dengan matrix multiplication 3x3</li>
+                        <li><strong>Registration:</strong> O(n×m) dimana n adalah jumlah iterations dan m adalah feature points</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>🎉 Laporan Tutorial Computer Vision - Transformasi Geometris</strong></p>
+            <p>Semua implementasi berhasil dijalankan dengan hasil yang memuaskan</p>
+            <p class="timestamp">Dibuat pada: ${new Date().toLocaleString('id-ID', {
+                weekday: 'long',
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            })}</p>
+        </div>
+    </div>
+
+    <script>
+        // Add smooth scrolling for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add fade-in animation for sections
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'all 0.6s ease-out';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
