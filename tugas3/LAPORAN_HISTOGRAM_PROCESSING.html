@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Praktikum - Histogram Processing</title>
+    <style>
+        @page {
+            size: Legal;
+            margin: 1in;
+            margin-top: 0.5in;
+            margin-bottom: 0.5in;
+            /* Hilangkan header/footer browser */
+            @top-left { content: ""; }
+            @top-center { content: ""; }
+            @top-right { content: ""; }
+            @bottom-left { content: ""; }
+            @bottom-center { content: ""; }
+            @bottom-right { content: ""; }
+        }
+        
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            body {
+                font-size: 11pt;
+                line-height: 1.4;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+            
+            h1 { 
+                font-size: 16pt; 
+                page-break-after: avoid;
+            }
+            
+            h2 { 
+                font-size: 14pt; 
+                page-break-after: avoid;
+                margin-top: 20pt;
+            }
+            
+            h3 { 
+                font-size: 12pt; 
+                page-break-after: avoid;
+            }
+            
+            img {
+                max-width: 100%;
+                page-break-inside: avoid;
+            }
+            
+            .image-container {
+                page-break-inside: avoid;
+                margin: 10pt 0;
+            }
+        }
+        
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        
+        .header-info {
+            text-align: center;
+            margin-bottom: 30pt;
+            padding: 20pt;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 40vh;
+        }
+        
+        .header-info h1 {
+            font-size: 18pt;
+            font-weight: bold;
+            margin: 15pt 0;
+            text-transform: uppercase;
+            letter-spacing: 1pt;
+        }
+        
+        .header-info h2 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 10pt 0;
+            color: #333;
+        }
+        
+        .course-info {
+            font-size: 13pt;
+            font-weight: bold;
+            margin: 20pt 0;
+            padding-bottom: 15pt;
+        }
+        
+        .student-info {
+            font-size: 12pt;
+            margin: 15pt 0;
+            text-align: left;
+            width: 300pt;
+        }
+        
+        .student-info div {
+            margin: 8pt 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .content {
+            text-align: justify;
+        }
+        
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .image-caption {
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 11pt;
+            color: #333;
+        }
+        
+        .code-block {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 10pt;
+            overflow-x: auto;
+        }
+        
+        .question {
+            background-color: #e8f4fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .answer {
+            background-color: #f0f8e8;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .bold {
+            font-weight: bold;
+        }
+        
+        .center {
+            text-align: center;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .comparison-table {
+            margin: 20px 0;
+        }
+        
+        .highlight {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cover Page -->
+    <div class="header-info">
+        <h1>Laporan Praktikum</h1>
+        <h1>Computer Vision</h1>
+        <h2>Histogram Processing</h2>
+        
+        <div class="course-info">
+            <div>Tutorial 9.1: Image Histograms</div>
+            <div>Tutorial 9.2: Histogram Equalization and Specification</div>
+            <div>Tutorial 9.3: Other Histogram Modification Techniques</div>
+        </div>
+        
+        <div class="student-info">
+            <div><span>Nama:</span><span>Andi Agung Dwi Arya B</span></div>
+            <div><span>NIM:</span><span>D082251054</span></div>
+            <div><span>Kelas:</span><span>B</span></div>
+            <div><span>Tanggal:</span><span>1 Oktober 2025</span></div>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Content -->
+    <div class="content">
+        <h1>TUTORIAL 9.1: IMAGE HISTOGRAMS</h1>
+
+        <h2>Tujuan</h2>
+        <p>Tujuan dari tutorial ini adalah menggunakan Python untuk menghitung dan menampilkan histogram citra dengan berbagai metode visualisasi.</p>
+
+        <h2>Objektif</h2>
+        <ul>
+            <li>Mempelajari cara menghitung histogram citra</li>
+            <li>Mempelajari berbagai teknik plotting untuk melihat dan menganalisis data histogram</li>
+            <li>Memahami normalisasi histogram</li>
+            <li>Mengeksplorasi berbagai cara visualisasi histogram (bar chart, stem chart, plot graph)</li>
+        </ul>
+
+        <h2>Langkah Kerja dan Hasil</h2>
+
+        <h3>Bagian 1: Menampilkan Histogram dengan Berbagai Jumlah Bin</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_1_1_Histogram_Bins.png" alt="Perbandingan histogram dengan berbagai jumlah bins">
+            <div class="image-caption">Gambar 1: Perbandingan histogram dengan berbagai jumlah bins (256, 64, dan 32 bins)</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 1:</strong> Jelaskan perubahan drastis pada nilai sumbu Y ketika histogram ditampilkan dengan jumlah bin yang lebih sedikit.
+        </div>
+        
+        <div class="answer">
+            <strong>Jawaban:</strong><br>
+            Ketika jumlah bin dikurangi dari 256 ke 32, nilai pada sumbu Y meningkat secara signifikan karena:
+            <ul>
+                <li><strong>Penggabungan bin:</strong> Pixel yang sebelumnya terdistribusi di banyak bin (256) sekarang digabungkan ke dalam bin yang lebih sedikit (32)</li>
+                <li><strong>Akumulasi frekuensi:</strong> Setiap bin yang baru menampung lebih banyak pixel, sehingga tinggi bar meningkat drastis</li>
+                <li><strong>Pengurangan resolusi histogram:</strong> Detail distribusi intensitas hilang, tetapi pola umum tetap terlihat</li>
+            </ul>
+            Secara matematis: jika 256 bin dikurangi menjadi 32 bin, setiap bin baru menampung rata-rata 8x lebih banyak pixel (256/32 = 8).
+        </div>
+
+        <h3>Bagian 2: Visualisasi dengan Bar Chart</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_1_2_Bar_Chart.png" alt="Bar Chart Visualization">
+            <div class="image-caption">Gambar 2: Bar Chart - standar dan ternormalisasi</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 2:</strong> Apa yang dilakukan fungsi <code>numel()</code> dalam MATLAB atau ekuivalennya di Python?
+        </div>
+        
+        <div class="answer">
+            <strong>Jawaban:</strong><br>
+            <strong>Fungsi di Python:</strong> <code>np.sum(hist)</code> atau <code>image.size</code><br>
+            <strong>Fungsi yang dilakukan:</strong> Menghitung jumlah total elemen dalam array atau total pixel dalam citra. Digunakan untuk normalisasi histogram agar jumlah semua nilai menjadi 1.
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 3:</strong> Tulis pernyataan satu baris yang akan memverifikasi bahwa jumlah nilai yang dinormalisasi adalah 1.
+        </div>
+        
+        <div class="answer">
+            <strong>Kode verifikasi:</strong><br>
+            <div class="code-block">
+print(f"Sum of normalized histogram: {np.sum(hist_normalized)}")
+# Hasil harus mendekati 1.0
+            </div>
+            <strong>Hasil verifikasi:</strong> Sum = 1.0000000000000002 (mendekati 1 karena floating point precision)
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 4:</strong> Bagaimana cara mengubah lebar bar dalam bar chart?
+        </div>
+        
+        <div class="answer">
+            <strong>Parameter yang digunakan:</strong> <code>width</code> dalam fungsi <code>plt.bar()</code><br>
+            <strong>Contoh kode:</strong>
+            <div class="code-block">
+plt.bar(range(len(hist)), hist, width=0.8, color='red')  # width default = 0.8
+plt.bar(range(len(hist)), hist, width=1.0, color='red')  # bar lebih lebar
+plt.bar(range(len(hist)), hist, width=0.5, color='red')  # bar lebih sempit
+            </div>
+        </div>
+
+        <h3>Bagian 3: Visualisasi dengan Stem Chart</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_1_3_Stem_Chart.png" alt="Stem Chart Visualization">
+            <div class="image-caption">Gambar 3: Stem Chart - standar dan ternormalisasi</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 5:</strong> Bagaimana cara membuat garis menjadi putus-putus (dotted) daripada solid?
+        </div>
+        
+        <div class="answer">
+            <strong>Parameter yang digunakan:</strong> <code>linefmt</code> dalam fungsi <code>plt.stem()</code><br>
+            <strong>Contoh kode:</strong>
+            <div class="code-block">
+# Garis putus-putus
+plt.stem(data, linefmt='b:', markerfmt='ro', basefmt='k-')  # ':' untuk dotted
+plt.stem(data, linefmt='b--', markerfmt='ro', basefmt='k-') # '--' untuk dashed
+plt.stem(data, linefmt='b-.', markerfmt='ro', basefmt='k-') # '-.' untuk dashdot
+            </div>
+        </div>
+
+        <h3>Bagian 4: Visualisasi dengan Plot Graph</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_1_4_Plot_Graph.png" alt="Plot Graph Visualization">
+            <div class="image-caption">Gambar 4: Plot Graph - standar dan ternormalisasi</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 6:</strong> Bagaimana cara membuat titik-titik lebih tebal sehingga lebih terlihat?
+        </div>
+        
+        <div class="answer">
+            <strong>Parameter untuk membuat titik lebih terlihat:</strong> <code>markersize</code> dan <code>markeredgewidth</code><br>
+            <strong>Contoh kode:</strong>
+            <div class="code-block">
+plt.plot(data, 'b-', marker='o', markersize=8, markeredgewidth=2)  # titik lebih besar
+plt.plot(data, 'b-', marker='s', markersize=6, markerfacecolor='red')  # marker kotak
+plt.plot(data, 'b-', marker='D', markersize=5, markeredgecolor='black')  # diamond
+            </div>
+        </div>
+
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="content">
+        <h1>TUTORIAL 9.2: HISTOGRAM EQUALIZATION AND SPECIFICATION</h1>
+
+        <h2>Tujuan</h2>
+        <p>Tujuan dari tutorial ini adalah mempelajari cara menggunakan histogram equalization (global dan lokal) dan histogram specification (matching) untuk perbaikan kontras citra.</p>
+
+        <h2>Objektif</h2>
+        <ul>
+            <li>Mengeksplorasi proses histogram equalization</li>
+            <li>Mempelajari cara melakukan histogram specification (matching)</li>
+            <li>Mempelajari cara melakukan local histogram equalization dengan adaptive methods</li>
+            <li>Memahami kapan histogram equalization bekerja dengan baik dan kapan tidak</li>
+        </ul>
+
+        <h2>Langkah Kerja dan Hasil</h2>
+
+        <h3>Bagian 1: Histogram Equalization pada Gambar Pout</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_2_1_Pout_Equalization.png" alt="Histogram Equalization pada pout.tif">
+            <div class="image-caption">Gambar 5: Histogram Equalization pada pout.tif - peningkatan kontras signifikan</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 1:</strong> Mengapa harus menyertakan parameter kedua (256) dalam fungsi histogram equalization?
+        </div>
+        
+        <div class="answer">
+            <strong>Alasan parameter 256:</strong> Menentukan jumlah level intensitas output<br>
+            <strong>Fungsi parameter ini:</strong> 
+            <ul>
+                <li>Memastikan histogram output memiliki 256 bin (0-255) untuk citra 8-bit</li>
+                <li>Mengontrol resolusi histogram yang diequalisasi</li>
+                <li>Menjaga kompatibilitas dengan format citra standar</li>
+            </ul>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 2:</strong> Apa efek histogram equalization pada gambar dengan kontras rendah?
+        </div>
+        
+        <div class="answer">
+            <strong>Efek pada kontras:</strong> Meningkatkan kontras secara dramatis<br>
+            <strong>Efek pada distribusi intensitas:</strong> Menyebarkan intensitas secara merata di seluruh rentang [0-255]<br>
+            <strong>Perubahan visual yang terlihat:</strong> Detail yang sebelumnya tersembunyi menjadi terlihat jelas, gambar menjadi lebih terang dan kontras
+        </div>
+
+        <h3>Bagian 2: Histogram Equalization pada Gambar Tire</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_2_2_Tire_Equalization.png" alt="Histogram Equalization pada tire.tif">
+            <div class="image-caption">Gambar 6: Histogram Equalization pada tire.tif - gambar gelap menjadi terang</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 3:</strong> Berdasarkan histogram asli gambar tire, apa yang dapat dikatakan tentang brightness keseluruhan gambar?
+        </div>
+        
+        <div class="answer">
+            <strong>Karakteristik brightness:</strong> Gambar sangat gelap (underexposed)<br>
+            <strong>Distribusi nilai pixel:</strong> Sebagian besar pixel terkonsentrasi di nilai intensitas rendah (0-100)<br>
+            Histogram menunjukkan puncak di sisi kiri, mengindikasikan gambar dengan brightness rendah dan kontras buruk.
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 4:</strong> Bagaimana histogram equalization mempengaruhi brightness keseluruhan gambar dalam kasus ini?
+        </div>
+        
+        <div class="answer">
+            <strong>Perubahan brightness:</strong> Meningkat signifikan, dari sangat gelap menjadi terang dengan distribusi yang merata<br>
+            <strong>Perubahan kontras:</strong> Kontras meningkat drastis, detail ban yang sebelumnya tidak terlihat menjadi jelas<br>
+            <strong>Kualitas gambar hasil:</strong> Jauh lebih baik, informasi visual yang tersembunyi menjadi terungkap
+        </div>
+
+        <h3>Bagian 3: Histogram Equalization pada Gambar Eight (Bimodal)</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_2_3_Eight_Equalization.png" alt="Histogram Equalization pada eight.tif">
+            <div class="image-caption">Gambar 7: Histogram Equalization pada eight.tif - contoh kegagalan pada distribusi bimodal</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 5:</strong> Mengapa terjadi penurunan kualitas gambar yang sangat signifikan setelah histogram equalization?
+        </div>
+        
+        <div class="answer">
+            <strong>Alasan penurunan kualitas:</strong> Histogram equalization tidak cocok untuk distribusi bimodal<br>
+            <strong>Hubungan dengan distribusi histogram bimodal:</strong>
+            <ul>
+                <li>Gambar memiliki dua kelompok intensitas utama (foreground dan background)</li>
+                <li>Equalization memaksa distribusi merata, merusak pemisahan natural antara objek dan latar</li>
+                <li>Kontras alami antara angka "8" dan background hilang</li>
+            </ul>
+            <strong>Kesimpulan tentang limitasi histogram equalization:</strong> Tidak selalu menghasilkan perbaikan, terutama untuk citra dengan karakteristik distribusi khusus
+        </div>
+
+        <h3>Bagian 4: Fungsi Transformasi (CDF)</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_2_4_CDF_Transformation.png" alt="CDF Transformation Function">
+            <div class="image-caption">Gambar 8: Normalized CDF sebagai fungsi transformasi histogram equalization</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 6:</strong> Apa yang dilakukan fungsi <code>cumsum()</code> pada langkah sebelumnya?
+        </div>
+        
+        <div class="answer">
+            <strong>Fungsi cumsum:</strong> Menghitung cumulative sum (jumlah kumulatif) dari array<br>
+            <strong>Penggunaannya dalam histogram equalization:</strong> Membuat Cumulative Distribution Function (CDF) dari histogram<br>
+            <strong>Hubungan dengan transformation function:</strong> CDF yang dinormalisasi menjadi fungsi mapping dari intensitas input ke intensitas output
+        </div>
+
+        <h3>Bagian 5: Histogram Specification (Matching)</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_2_5_Histogram_Matching.png" alt="Histogram Specification/Matching">
+            <div class="image-caption">Gambar 9: Histogram Specification - mengubah distribusi histogram sesuai bentuk yang diinginkan</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 7-9:</strong> Tentang Interactive Histogram Matching demo
+        </div>
+        
+        <div class="answer">
+            <strong>Fungsi "Continuous Update":</strong> Memperbarui hasil matching secara real-time saat mengubah kurva target<br>
+            <strong>Metode interpolasi yang berbeda:</strong> Mempengaruhi kehalusan dan akurasi bentuk kurva histogram yang diinginkan<br>
+            <strong>Memuat gambar berbeda:</strong> Menggunakan file dialog atau drag-and-drop untuk memuat citra baru
+        </div>
+
+        <h3>Bagian 6: Adaptive Histogram Equalization (CLAHE)</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_2_6_Adaptive_Equalization.png" alt="Adaptive Histogram Equalization">
+            <div class="image-caption">Gambar 10: Perbandingan Global vs Adaptive Histogram Equalization pada citra coins</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 10:</strong> Apa fungsi parameter <code>ClipLimit</code> dalam fungsi adaptive histogram equalization?
+        </div>
+        
+        <div class="answer">
+            <strong>Fungsi ClipLimit:</strong> Membatasi amplifikasi kontras pada setiap tile untuk mencegah noise berlebihan<br>
+            <strong>Efek pada hasil:</strong> 
+            <ul>
+                <li>Nilai rendah (0.1): Amplifikasi kontras konservatif, hasil lebih halus</li>
+                <li>Nilai tinggi (>2.0): Amplifikasi agresif, bisa menimbulkan artefak</li>
+            </ul>
+            <strong>Nilai optimal:</strong> Biasanya antara 0.1 - 2.0, tergantung karakteristik citra
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 11:</strong> Berapa ukuran tile default ketika menggunakan adaptive histogram equalization?
+        </div>
+        
+        <div class="answer">
+            <strong>Ukuran tile default:</strong> 8x8 pixel<br>
+            <strong>Pengaruh ukuran tile:</strong>
+            <ul>
+                <li>Tile kecil: Adaptasi lokal lebih detail, tapi bisa lebih noisy</li>
+                <li>Tile besar: Hasil lebih halus, tapi adaptasi kurang lokal</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="content">
+        <h1>TUTORIAL 9.3: TEKNIK MODIFIKASI HISTOGRAM LAINNYA</h1>
+
+        <h2>Tujuan</h2>
+        <p>Tujuan dari tutorial ini adalah mempelajari cara melakukan operasi modifikasi histogram umum lainnya untuk penyesuaian brightness dan kontras.</p>
+
+        <h2>Objektif</h2>
+        <ul>
+            <li>Mempelajari cara menyesuaikan brightness gambar dengan histogram sliding</li>
+            <li>Mempelajari cara menggunakan fungsi untuk penyesuaian intensitas</li>
+            <li>Mengeksplorasi penyesuaian kontras melalui histogram stretching</li>
+            <li>Mempelajari cara menyesuaikan kontras dengan histogram shrinking</li>
+        </ul>
+
+        <h2>Langkah Kerja dan Hasil</h2>
+
+        <h3>Bagian 1: Histogram Sliding (Brightness Adjustment)</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_3_1_Histogram_Sliding.png" alt="Histogram Sliding">
+            <div class="image-caption">Gambar 11: Histogram Sliding - penambahan konstanta untuk mengubah brightness</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 1:</strong> Bagaimana histogram berubah setelah penyesuaian?
+        </div>
+        
+        <div class="answer">
+            <strong>Perubahan pada distribusi histogram:</strong> Seluruh histogram bergeser ke kanan (nilai lebih tinggi)<br>
+            <strong>Pergeseran nilai intensitas:</strong> Setiap pixel ditambah konstanta yang sama, menggeser distribusi tanpa mengubah bentuk
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 2:</strong> Apa yang dikandung oleh variabel <code>bad_values</code>?
+        </div>
+        
+        <div class="answer">
+            <strong>Isi variabel bad_values:</strong> Pixel yang nilainya melebihi batas maksimum (>255) setelah penambahan konstanta<br>
+            <strong>Tujuan variabel ini:</strong> Mengidentifikasi pixel yang akan di-clipping (dipotong) ke nilai maksimum
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 3:</strong> Mengapa plot ketiga menunjukkan jumlah pixel yang berlebihan dengan nilai 1 (atau 255)?
+        </div>
+        
+        <div class="answer">
+            <strong>Alasan saturasi pada nilai 1 (atau 255):</strong> Clipping - pixel yang nilainya melebihi batas atas dipaksa ke nilai maksimum<br>
+            <strong>Hubungan dengan clipping:</strong> Semua pixel > 255 dikumpulkan di nilai 255, menciptakan puncak artificial<br>
+            <strong>Implikasi untuk kualitas gambar:</strong> Hilangnya detail pada area terang akibat saturasi
+        </div>
+
+        <h3>Bagian 2: Histogram Stretching</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_3_2_Histogram_Stretching.png" alt="Histogram Stretching">
+            <div class="image-caption">Gambar 12: Histogram Stretching menggunakan fungsi imadjust</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 4:</strong> Bagaimana histogram berubah setelah penyesuaian?
+        </div>
+        
+        <div class="answer">
+            <strong>Perubahan distribusi histogram:</strong> Histogram meregang untuk mengisi seluruh rentang [0-255]<br>
+            <strong>Perubahan range intensitas:</strong> Range sempit diperluas ke range penuh<br>
+            <strong>Peningkatan kontras:</strong> Kontras meningkat karena perbedaan intensitas diperbesar
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 5:</strong> Apa tujuan menggunakan fungsi <code>stretchlim()</code>?
+        </div>
+        
+        <div class="answer">
+            <strong>Fungsi stretchlim:</strong> Menentukan batas bawah dan atas untuk stretching secara otomatis<br>
+            <strong>Parameter yang dihitung:</strong> Percentile tertentu (biasanya 1% dan 99%) untuk menghindari outlier<br>
+            <strong>Tujuan dalam histogram stretching:</strong> Memberikan stretching yang robust terhadap noise dan outlier
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 6-7:</strong> Tentang difference image
+        </div>
+        
+        <div class="answer">
+            <strong>Tampilan difference image:</strong> Seharusnya hitam sempurna (semua pixel = 0) jika parameter sama<br>
+            <strong>Tujuan pemeriksaan min/max:</strong> Memverifikasi bahwa kedua hasil identical atau mengidentifikasi perbedaan kecil akibat floating point precision
+        </div>
+
+        <h3>Bagian 3: Histogram Shrinking</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_3_3_Histogram_Shrinking.png" alt="Histogram Shrinking">
+            <div class="image-caption">Gambar 13: Histogram Shrinking - mengurangi kontras dengan mempersempit rentang output</div>
+        </div>
+
+        <div class="image-container">
+            <img src="hasil/Gambar_9_3_3b_Transform_Shrinking.png" alt="Transformation Function Shrinking">
+            <div class="image-caption">Gambar 13b: Fungsi transformasi untuk histogram shrinking</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 8:</strong> Apa yang dilakukan dua pernyataan pertama dalam kode (reshape/flatten)?
+        </div>
+        
+        <div class="answer">
+            <strong>Fungsi reshape/flatten:</strong> Mengubah matriks 2D citra menjadi array 1D<br>
+            <strong>Tujuan dalam konteks ini:</strong> Mempersiapkan data untuk scatter plot transformation function agar dapat divisualisasikan hubungan input-output
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 9:</strong> Apa fungsi <code>xlabel()</code> dan <code>ylabel()</code>?
+        </div>
+        
+        <div class="answer">
+            <strong>Fungsi xlabel dan ylabel:</strong> Memberikan label pada sumbu X dan Y dalam plot<br>
+            <strong>Pentingnya dalam visualisasi:</strong> Membantu pembaca memahami apa yang direpresentasikan oleh setiap sumbu
+        </div>
+
+        <h3>Bagian 4: Histogram Shrinking dengan Gamma Correction</h3>
+        
+        <div class="image-container">
+            <img src="hasil/Gambar_9_3_4_Histogram_Shrinking_Gamma.png" alt="Histogram Shrinking with Gamma">
+            <div class="image-caption">Gambar 14: Histogram Shrinking dengan Gamma Correction (γ=2)</div>
+        </div>
+
+        <div class="image-container">
+            <img src="hasil/Gambar_9_3_4b_Transform_Gamma.png" alt="Transformation Function with Gamma">
+            <div class="image-caption">Gambar 14b: Fungsi transformasi non-linear dengan gamma=2</div>
+        </div>
+
+        <div class="question">
+            <strong>Pertanyaan 10:</strong> Plot transformation function menampilkan gap dari 0 hingga 12 (pada sumbu X) di mana tidak ada titik. Mengapa demikian?
+        </div>
+        
+        <div class="answer">
+            <strong>Alasan gap pada plot:</strong> Tidak ada pixel dalam citra asli yang memiliki nilai intensitas 0-12<br>
+            <strong>Hubungan dengan histogram asli:</strong> Gap tersebut mencerminkan distribusi histogram asli yang tidak memiliki pixel pada rentang intensitas rendah<br>
+            <strong>Interpretasi:</strong> Citra asli tidak memiliki area yang sangat gelap (nilai 0-12), sehingga tidak ada data untuk ditransformasi pada rentang tersebut
+        </div>
+
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="content">
+        <h1>ANALISIS DAN PERBANDINGAN TEKNIK</h1>
+
+        <h2>Perbandingan Teknik Histogram Processing</h2>
+
+        <div class="comparison-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Teknik</th>
+                        <th>Kelebihan</th>
+                        <th>Kekurangan</th>
+                        <th>Cocok untuk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Histogram Equalization</strong></td>
+                        <td>
+                            • Peningkatan kontras otomatis<br>
+                            • Implementasi sederhana<br>
+                            • Efektif untuk citra kontras rendah
+                        </td>
+                        <td>
+                            • Bisa over-enhancement<br>
+                            • Tidak cocok untuk distribusi bimodal<br>
+                            • Hilang karakteristik asli
+                        </td>
+                        <td>
+                            • Citra medis<br>
+                            • Foto underexposed<br>
+                            • Citra satelit
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Adaptive (CLAHE)</strong></td>
+                        <td>
+                            • Kontrol noise lebih baik<br>
+                            • Adaptasi lokal<br>
+                            • Hasil lebih natural
+                        </td>
+                        <td>
+                            • Kompleksitas komputasi tinggi<br>
+                            • Parameter perlu tuning<br>
+                            • Bisa timbul artefak tile
+                        </td>
+                        <td>
+                            • Citra dengan variasi pencahayaan<br>
+                            • Foto portrait<br>
+                            • Citra mikroskop
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Histogram Sliding</strong></td>
+                        <td>
+                            • Kontrol brightness langsung<br>
+                            • Mempertahankan kontras relatif<br>
+                            • Implementasi sangat sederhana
+                        </td>
+                        <td>
+                            • Bisa terjadi clipping<br>
+                            • Tidak meningkatkan kontras<br>
+                            • Loss of information
+                        </td>
+                        <td>
+                            • Koreksi exposure sederhana<br>
+                            • Pre-processing<br>
+                            • Adjustment cepat
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Histogram Stretching</strong></td>
+                        <td>
+                            • Meningkatkan kontras<br>
+                            • Menggunakan full dynamic range<br>
+                            • Hasil natural
+                        </td>
+                        <td>
+                            • Sensitif terhadap outlier<br>
+                            • Bisa amplifikasi noise<br>
+                            • Perlu parameter tuning
+                        </td>
+                        <td>
+                            • Citra low contrast<br>
+                            • Enhancement general<br>
+                            • Fotografi digital
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Histogram Shrinking</strong></td>
+                        <td>
+                            • Mengurangi kontras berlebihan<br>
+                            • Menghaluskan transisi<br>
+                            • Kontrol output range
+                        </td>
+                        <td>
+                            • Mengurangi informasi<br>
+                            • Bisa membuat gambar datar<br>
+                            • Loss of detail
+                        </td>
+                        <td>
+                            • Citra terlalu kontras<br>
+                            • Persiapan untuk display<br>
+                            • Stylistic effect
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Kesimpulan Umum</h2>
+
+        <h3>Pemahaman Konsep Histogram</h3>
+
+        <div class="highlight">
+            <p><strong>Histogram dan kegunaannya:</strong> Histogram adalah representasi grafis distribusi intensitas pixel dalam citra. Berguna untuk menganalisis karakteristik citra, mendeteksi masalah exposure, dan menentukan teknik enhancement yang sesuai.</p>
+        </div>
+
+        <div class="highlight">
+            <p><strong>Hubungan histogram dengan kualitas gambar:</strong> Bentuk histogram mencerminkan kualitas citra - histogram sempit menunjukkan kontras rendah, histogram tergeser menunjukkan masalah brightness, histogram bimodal menunjukkan objek dengan background yang jelas terpisah.</p>
+        </div>
+
+        <div class="highlight">
+            <p><strong>Efektivitas histogram equalization:</strong> Efektif untuk citra dengan kontras rendah dan distribusi unimodal, tetapi tidak efektif untuk distribusi bimodal atau multimodal karena dapat merusak pemisahan natural antara objek dan background.</p>
+        </div>
+
+        <div class="highlight">
+            <p><strong>Global vs Local histogram equalization:</strong> Global equalization menerapkan transformasi yang sama ke seluruh citra, sementara local (adaptive) equalization menerapkan transformasi berbeda untuk setiap region, menghasilkan enhancement yang lebih natural dengan kontrol noise yang lebih baik.</p>
+        </div>
+
+        <div class="highlight">
+            <p><strong>Pentingnya transformation function:</strong> Transformation function (CDF) menunjukkan bagaimana setiap intensitas input dipetakan ke intensitas output. Memahami fungsi ini penting untuk memprediksi dan mengontrol hasil enhancement.</p>
+        </div>
+
+        <h3>Aplikasi Praktis</h3>
+
+        <p><strong>Medical Imaging:</strong> Histogram equalization sering digunakan untuk meningkatkan visibilitas struktur internal dalam X-ray, CT scan, dan MRI.</p>
+
+        <p><strong>Fotografi Digital:</strong> Histogram stretching dan adaptive equalization digunakan untuk koreksi exposure dan peningkatan detail dalam fotografi landscape dan portrait.</p>
+
+        <p><strong>Computer Vision:</strong> Pre-processing dengan normalisasi histogram meningkatkan akurasi algoritma deteksi dan pengenalan objek.</p>
+
+        <p><strong>Remote Sensing:</strong> Enhancement histogram digunakan untuk menganalisis citra satelit dan meningkatkan interpretabilitas data geospasial.</p>
+
+        <h3>Panduan Pemilihan Teknik</h3>
+
+        <ol>
+            <li><strong>Analisis histogram terlebih dahulu</strong> - bentuk distribusi menentukan teknik yang sesuai</li>
+            <li><strong>Pertimbangkan tujuan enhancement</strong> - apakah untuk analisis visual atau pemrosesan lebih lanjut</li>
+            <li><strong>Evaluasi hasil secara kualitatif dan kuantitatif</strong> - tidak semua peningkatan metrik berarti perbaikan visual</li>
+            <li><strong>Gunakan adaptive methods untuk citra kompleks</strong> - citra dengan variasi pencahayaan memerlukan pendekatan lokal</li>
+            <li><strong>Pertimbangkan computational cost</strong> - untuk aplikasi real-time, pilih metode yang efisien</li>
+        </ol>
+
+        <h2>Kesimpulan Akhir</h2>
+
+        <p>Histogram processing merupakan fundamental tool dalam computer vision dan image processing. Setiap teknik memiliki karakteristik, kelebihan, dan limitasi masing-masing. Pemahaman yang mendalam tentang distribusi histogram dan transformasi yang terlibat sangat penting untuk memilih dan mengaplikasikan teknik yang tepat.</p>
+
+        <p>Hasil eksperimen menunjukkan bahwa tidak ada teknik universal yang cocok untuk semua jenis citra. Histogram equalization sangat efektif untuk citra kontras rendah tetapi dapat merusak citra dengan distribusi bimodal. Adaptive histogram equalization memberikan hasil yang lebih natural dengan kontrol noise yang lebih baik, meskipun dengan kompleksitas komputasi yang lebih tinggi.</p>
+
+        <p>Teknik-teknik modifikasi histogram lainnya seperti sliding, stretching, dan shrinking memberikan kontrol yang lebih spesifik terhadap brightness dan kontras, memungkinkan fine-tuning sesuai kebutuhan aplikasi spesifik.</p>
+    </div>
+
+    <!-- Print optimization script -->
+    <script>
+        // Function to optimize print settings
+        window.addEventListener('beforeprint', function() {
+            document.title = '';
+        });
+        
+        // Detect if user wants to print and show instructions
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'p') {
+                setTimeout(function() {
+                    alert('🚨 PENTING - Hilangkan Header/Footer Browser:\n\n1. Pilih "Save as PDF"\n2. Paper size: Legal\n3. Margins: Default\n4. Options: ✅ Background graphics\n5. 🎯 Headers/Footers: KOSONGKAN SEMUA!\n   - Header Left: (kosong)\n   - Header Center: (kosong) \n   - Header Right: (kosong)\n   - Footer Left: (kosong)\n   - Footer Center: (kosong)\n   - Footer Right: (kosong)\n\n✅ Ini menghilangkan tanggal, URL, dan nama file!');
+                }, 100);
+            }
+        });
+        
+        // Add print button for easier access
+        window.addEventListener('load', function() {
+            const printBtn = document.createElement('button');
+            printBtn.innerHTML = '🖨️ Print PDF (Legal Size)';
+            printBtn.style.cssText = `
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                padding: 10px 15px;
+                background: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+                z-index: 1000;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            `;
+            printBtn.className = 'no-print';
+            
+            printBtn.addEventListener('click', function() {
+                window.print();
+            });
+            
+            document.body.appendChild(printBtn);
+        });
+    </script>
+
+</body>
+</html>
